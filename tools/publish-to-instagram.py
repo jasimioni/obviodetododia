@@ -126,3 +126,6 @@ if __name__ == "__main__":
             done_file_path = os.path.join(folder, "done")
             with open(done_file_path, "w") as done_file:
                 done_file.write(f"This post has been published to Instagram on {time.strftime('%Y-%m-%d %H:%M:%S')}.\n")
+    else:
+        print("Failed to publish post to Instagram.")
+        exit(1)
