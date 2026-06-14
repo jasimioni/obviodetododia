@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# Generates daily Instagram post content about "obvious things" using Gemini.
+# Builds post text (short sentence, caption, rating) while avoiding repeated themes.
+# Creates an image with Imagen and stores both image and JSON metadata in posts/<date>/.
+# Accepts an optional --date (YYYY-MM-DD); defaults to today's date when omitted.
+
 import dotenv
 import json
 import os
@@ -10,6 +15,7 @@ from pydantic import BaseModel, Field
 from PIL import Image, ImageDraw, ImageFont
 import io
 from datetime import datetime
+import argparse
 
 EXISTING_POSTS_FILE = "existing-posts.txt"
 
@@ -137,18 +143,30 @@ def load_historical_sentences(existing_posts_file: str, posts_root: str = "posts
     
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate Instagram post content.")
+    parser.add_argument("--date", type=str, help="The date for which to generate the post content (format: YYYY-MM-DD). If not provided, today's date will be used.")
+    args = parser.parse_args()
+
     dotenv.load_dotenv()
     client = genai.Client(api_key=os.getenv("GEMINI_API_TOKEN"))
     historical_sentences = load_historical_sentences(EXISTING_POSTS_FILE)
     
     print(f"{historical_sentences}")
 
-    today = datetime.now().strftime('%Y-%m-%d')
+    post_date = datetime.now().strftime('%Y-%m-%d')
 
-    folder = os.path.join("posts", today)
+    if args.date:
+        try:
+            datetime.strptime(args.date, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError("Invalid date format. Please use YYYY-MM-DD.")
+        post_date = args.date
+
+    folder = os.path.join("posts", post_date)
     
     if os.path.exists(folder):
-        raise FileExistsError(f"The folder '{folder}' already exists. Please remove it or choose a different name.")
+        print(f"The folder '{folder}' already exists. Skipping post generation to avoid overwriting existing content.")
+        exit(0)
 
     os.makedirs(folder, exist_ok=True)
 
@@ -157,6 +175,5 @@ if __name__ == "__main__":
     save_post_data(post, folder)
     print(f"Post data saved to folder: {folder}")
 
-    image_name = generate_image(client, post.prompt_imagem, folder)
+    image_name = generate_image(client, post.image_prompt, folder)
     print(f"Imagem gerada: {image_name}")
-    

@@ -1,21 +1,28 @@
 #!/usr/bin/env python3
 
+# Publishes an image post to Instagram using the Meta Graph API.
+# Accepts direct --image_url and --caption or loads them from a posts/<date> folder.
+# Prevents duplicate publishing by checking/creating a local "done" marker file.
+# Reads API credentials and base URL from environment variables via .env.
+
 import requests
 import time
 import dotenv
 import os
 import argparse
 import json
+from datetime import datetime
 
 dotenv.load_dotenv()
 
 ACCESS_TOKEN = os.getenv("META_API_TOKEN")
 INSTAGRAM_ID = os.getenv("PAGE_ID")
-BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL") 
+BASE_IMAGE_URL = os.getenv("BASE_IMAGE_URL")
+INSTAGRAM_API_VERSION = "v20.0"
 
 
 def post_to_instagram(image_url: str, caption: str) -> bool:
-    base_url = "https://graph.facebook.com/v20.0"
+    base_url = f"https://graph.facebook.com/{INSTAGRAM_API_VERSION}"
 
     # -------------------------------------------------------------
     # STEP 1: Create the media container (Media Container)
@@ -72,6 +79,7 @@ if __name__ == "__main__":
     parser.add_argument("--image_url", type=str, help="The URL of the image to post.")
     parser.add_argument("--caption", type=str, help="The caption for the Instagram post.")
     parser.add_argument("--folder", type=str, help="The folder containing the image to post.")
+    parser.add_argument("--date", type=str, help="The date for which to post the content (format: YYYY-MM-DD). If not provided, today's date will be used.")
     args = parser.parse_args()
 
     if args.image_url and args.caption:
@@ -80,8 +88,22 @@ if __name__ == "__main__":
     else:
         folder = args.folder
         if not args.folder:
-            today = time.strftime("%Y-%m-%d")
-            folder = os.path.join("posts", today)
+            if args.date:
+                try:
+                    datetime.strptime(args.date, '%Y-%m-%d')
+                except ValueError:
+                    raise ValueError("Invalid date format. Please use YYYY-MM-DD.")
+                folder = os.path.join("posts", args.date)
+            else:
+                today = time.strftime("%Y-%m-%d")
+                folder = os.path.join("posts", today)
+        
+        # Check if done file exists to prevent reposting
+        done_file_path = os.path.join(folder, "done")
+        if os.path.exists(done_file_path):
+            print(f"Post in folder '{folder}' has already been published to Instagram. Skipping.")
+            exit(0)
+
         image_path = os.path.join(folder, "post_instagram_0.jpg")
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image not found at path: {image_path}")
@@ -96,10 +118,11 @@ if __name__ == "__main__":
         if not caption:
             raise ValueError(f"Caption not found in post data at path: {post_data_path}")
 
-    print(f"Posting to instagram with image URL: {image_url} and caption: {caption}")
+    print(f"Posting to Instagram with image URL: {image_url} and caption: {caption}")
 
     if post_to_instagram(image_url, caption):
         print("Post successfully published to Instagram!")
-        done_file_path = os.path.join(folder, "done")
-        with open(done_file_path, "w") as done_file:
-            done_file.write(f"This post has been published to Instagram on {time.strftime('%Y-%m-%d %H:%M:%S')}.")
+        if folder:
+            done_file_path = os.path.join(folder, "done")
+            with open(done_file_path, "w") as done_file:
+                done_file.write(f"This post has been published to Instagram on {time.strftime('%Y-%m-%d %H:%M:%S')}.\n")
