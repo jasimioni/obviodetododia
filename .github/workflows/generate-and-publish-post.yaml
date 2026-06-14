@@ -63,7 +63,7 @@ jobs:
     env:
       META_API_TOKEN: ${{ secrets.META_API_TOKEN }}
       PAGE_ID: ${{ secrets.PAGE_ID }}
-      BASE_IMAGE_URL: ${{ secrets.BASE_IMAGE_URL }}
+      BASE_IMAGE_URL: ${{ vars.BASE_IMAGE_URL }}
       POST_DATE: ${{ inputs.date }}
     steps:
       - name: Checkout repository
