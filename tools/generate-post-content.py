@@ -36,7 +36,9 @@ The image prompt should be detailed and in English, describing a scene that visu
 And the image should include the sentence itself as part of the scene. It can be just text on top of a background, or the sentence can be integrated
 into the scene in a clever way.
 
-Finally, create a creative caption in Portuguese for the Instagram post that includes relevant hashtags to increase engagement.
+Create a creative caption in Portuguese for the Instagram post that includes relevant hashtags to increase engagement.
+
+Finally, rate each post from 0 to 100 on how you evaluate how good the post will be.
 
 CRITICAL: You cannot repeat any theme, central concept, or approach that resembles the sentences listed below.
     They represent posts that have already been published. Be original and seek new angles.
@@ -51,7 +53,7 @@ CRITICAL: You cannot repeat any theme, central concept, or approach that resembl
         image_prompt: str = Field(description="The detailed prompt (in English) for the image generator (Imagen 3).")
         short_sentence: str = Field(description="A short and catchy sentence in Portuguese that represents an 'obvious thing'.")
         caption: str = Field(description="A creative caption in Portuguese for the Instagram post, including relevant hashtags.")
-        rate: int = Field(description="A rating from 0 to 100 indicating how good this post idea is, with 10 being the best.")
+        rate: int = Field(description="A rating from 0 to 100 indicating how good this post idea is, with 100 being the best.")
 
     class PostList(BaseModel):
         posts: List[PostInstagram] = Field(description="A list containing the generated post ideas.")
