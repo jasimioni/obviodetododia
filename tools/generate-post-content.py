@@ -105,11 +105,11 @@ def generate_image(client, prompt: str, folder):
         except (ClientError, ServerError) as e:
             is_temporary = e.code in [429, 503]
             if is_temporary and attempt < max_attempts:
-                print(f"AI model is not responding. Waiting for {delay} seconds...")
+                print(f"AI model is not responding ({e.code}). Waiting for {delay} seconds...")
                 time.sleep(delay)
                 delay *= 2
-        else:
-            raise e
+            else:
+                raise e
 
     for i, generated_image in enumerate(response.generated_images):
         image = Image.open(io.BytesIO(generated_image.image.image_bytes))
