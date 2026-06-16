@@ -10,7 +10,7 @@ import json
 import os
 from typing import List
 from google import genai
-from google.genai import types
+from google.genai import types, ServerError
 from pydantic import BaseModel, Field
 from PIL import Image, ImageDraw, ImageFont
 import io
@@ -84,16 +84,29 @@ CRITICAL: You cannot repeat any theme, central concept, or approach that resembl
     return best
 
 def generate_image(client, prompt: str, folder):
-    response = client.models.generate_images(
-        model='imagen-4.0-generate-001',
-        prompt=prompt,
-        config=types.GenerateImagesConfig(
-            number_of_images=1,
-            output_mime_type="image/jpeg",
-            aspect_ratio="1:1", 
-            person_generation="ALLOW_ADULT",
-        )            
-    )
+
+    max_attempts = 3
+    delay = 5
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            response = client.models.generate_images(
+                model='imagen-4.0-generate-001',
+                prompt=prompt,
+                config=types.GenerateImagesConfig(
+                    number_of_images=1,
+                    output_mime_type="image/jpeg",
+                    aspect_ratio="1:1", 
+                    person_generation="ALLOW_ADULT",
+                )            
+            )
+        except ServerError as e:
+            if e.code == 503 and attempt < max_attempts:
+                print(f"AI model is not responding. Waiting for {delay} seconds...")
+                time.sleep(delay)
+                delay *= 2
+        else:
+            raise e
 
     for i, generated_image in enumerate(response.generated_images):
         image = Image.open(io.BytesIO(generated_image.image.image_bytes))
