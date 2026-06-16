@@ -11,7 +11,7 @@ import os
 from typing import List
 from google import genai
 from google.genai import types
-from google.genai.errors import ServerError
+from google.genai.errors import ServerError, ClientError
 from pydantic import BaseModel, Field
 from PIL import Image, ImageDraw, ImageFont
 import io
@@ -101,8 +101,9 @@ def generate_image(client, prompt: str, folder):
                     person_generation="ALLOW_ADULT",
                 )            
             )
-        except ServerError as e:
-            if e.code == 503 and attempt < max_attempts:
+        except (ClientError, ServerError) as e:
+            is_temporary = e.code in [429, 503]
+            if is_temporary and attempt < max_attempts:
                 print(f"AI model is not responding. Waiting for {delay} seconds...")
                 time.sleep(delay)
                 delay *= 2
