@@ -10,7 +10,8 @@ import json
 import os
 from typing import List
 from google import genai
-from google.genai import types, ServerError
+from google.genai import types
+from google.genai.errors import ServerError
 from pydantic import BaseModel, Field
 from PIL import Image, ImageDraw, ImageFont
 import io
