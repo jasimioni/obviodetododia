@@ -22,7 +22,6 @@ import argparse
 EXISTING_POSTS_FILE = "existing-posts.txt"
 
 def generate_post(client, historical_sentences: List[str]):
-    print(historical_sentences)
     prompt = f"""
 You are a social media creator. Your task is to generate creative sentences in Portuguese for an Instagram
 post about obvious things. The sentences should be catchy, engaging, and suitable for a wide audience. 
