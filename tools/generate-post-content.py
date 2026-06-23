@@ -44,10 +44,10 @@ Finally, rate each post from 0 to 100 on how you evaluate how good the post will
 
 CRITICAL: You cannot repeat any theme, central concept, or approach that resembles the sentences listed below.
     They represent posts that have already been published. Be original and seek new angles.
-    
-    ---
+
     EXCLUSION LIST (DO NOT REPEAT THESE THEMES/SENTENCES):
-    {historical_sentences}
+    ---    
+    {"\n".join(historical_sentences)}
     ---
     """
 
@@ -59,6 +59,8 @@ CRITICAL: You cannot repeat any theme, central concept, or approach that resembl
 
     class PostList(BaseModel):
         posts: List[PostInstagram] = Field(description="A list containing the generated post ideas.")
+
+    print(f"Prompt used:\n-----------------------\n{prompt}\n----------------------\n")
 
     response = client.models.generate_content(
         model='gemini-2.5-flash',
