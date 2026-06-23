@@ -22,7 +22,8 @@ import argparse
 EXISTING_POSTS_FILE = "existing-posts.txt"
 
 def generate_post(client, historical_sentences: List[str]):
-    prompt = """
+    print(historical_sentences)
+    prompt = f"""
 You are a social media creator. Your task is to generate creative sentences in Portuguese for an Instagram
 post about obvious things. The sentences should be catchy, engaging, and suitable for a wide audience. 
 They should also reflect the theme of "obvious things" in a fun and relatable way.
@@ -47,7 +48,7 @@ CRITICAL: You cannot repeat any theme, central concept, or approach that resembl
 
     EXCLUSION LIST (DO NOT REPEAT THESE THEMES/SENTENCES):
     ---    
-    {"\n".join(historical_sentences)}
+    {"\n    ".join(historical_sentences)}
     ---
     """
 
