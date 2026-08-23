@@ -95,7 +95,7 @@ def generate_image(client, prompt: str, folder):
     for attempt in range(1, max_attempts + 1):
         try:
             response = client.models.generate_images(
-                model='imagen-4.0-generate-001',
+                model='imagen-3.0-generate-002',
                 prompt=prompt,
                 config=types.GenerateImagesConfig(
                     number_of_images=1,
